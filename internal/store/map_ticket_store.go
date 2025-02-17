@@ -2,7 +2,8 @@ package store
 
 import (
 	"fmt"
-	"go-ticket-app/internal/models" // Adjusted import path
+	"go-ticket-app/internal"
+	"go-ticket-app/internal/models"
 	"sync"
 )
 
@@ -13,7 +14,7 @@ type MapTicketStore struct {
 }
 
 // NewMapTicketStore initializes a new MapTicketStore.
-func NewMapTicketStore() *MapTicketStore {
+func NewMapTicketStore() internal.TicketStore {
 	return &MapTicketStore{tickets: make(map[string]models.Ticket)}
 }
 
