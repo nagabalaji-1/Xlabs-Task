@@ -59,8 +59,10 @@ func (store *MapTicketStore) Update(id string, updatedTicket models.Ticket) (mod
 	if !found {
 		return models.Ticket{}, fmt.Errorf("ticket not found")
 	}
-	ticket.Title = updatedTicket.Title
-	ticket.Description = updatedTicket.Description
+	ticket.ID = updatedTicket.ID
+	ticket.SeatNo = updatedTicket.SeatNo
+	ticket.TrainID = updatedTicket.TrainID
+	ticket.UserID = updatedTicket.UserID
 	store.tickets[id] = ticket
 	return ticket, nil
 }
