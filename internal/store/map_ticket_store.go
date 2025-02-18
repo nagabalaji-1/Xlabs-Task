@@ -25,6 +25,7 @@ func (store *MapTicketStore) Create(ticket models.Ticket) (models.Ticket, error)
 
 	ticketID := fmt.Sprintf("Ticket%d", len(store.tickets)+1)
 	ticket.ID = ticketID
+	ticket.Status = models.Pending
 	store.tickets[ticketID] = ticket
 	return ticket, nil
 }
@@ -63,6 +64,7 @@ func (store *MapTicketStore) Update(id string, updatedTicket models.Ticket) (mod
 	ticket.SeatNo = updatedTicket.SeatNo
 	ticket.TrainID = updatedTicket.TrainID
 	ticket.UserID = updatedTicket.UserID
+	ticket.Status = updatedTicket.Status
 	store.tickets[id] = ticket
 	return ticket, nil
 }

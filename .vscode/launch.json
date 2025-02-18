@@ -9,7 +9,7 @@
             "type": "go",
             "request": "launch",
             "mode": "auto",
-            "program": "${fileDirname}"
+            "program": "C:\\Users\\Nagabalaji.B\\Documents\\Project\\Test1\\go-ticket-app\\cmd\\main.go"
         }
     ]
 }

@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"sync"
 
 	"go-ticket-app/internal"
+	"go-ticket-app/internal/errors"
 	"go-ticket-app/internal/models"
 	"go-ticket-app/internal/queue"
 
@@ -22,19 +24,27 @@ var (
 	trainMu     sync.Mutex
 	ticketMu    sync.Mutex
 	ticketQueue internal.TicketQueue
+	logger      *log.Logger
 )
 
 func Init(store internal.TicketStore) {
+	file, err := os.OpenFile("app.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatal("Failed to open log file")
+	}
+	logger = log.New(file, "INFO: ", log.Ldate|log.Ltime|log.Lshortfile)
 	ticketQueue = queue.NewTicketQueue(store)
 	go ticketQueue.ProcessQueue()
 }
+
 func CreateTicket(w http.ResponseWriter, r *http.Request) {
 	var ticket models.Ticket
 	if err := json.NewDecoder(r.Body).Decode(&ticket); err != nil {
+		logger.Printf("Error decoding ticket: %v", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-
+	ticket.Status = models.Pending
 	ticketQueue.Enqueue(ticket)
 	w.WriteHeader(http.StatusAccepted)
 }
@@ -45,7 +55,8 @@ func GetTicket(w http.ResponseWriter, r *http.Request) {
 
 	ticket, found := ticketQueue.Get(id)
 	if !found {
-		http.Error(w, "Ticket not found", http.StatusNotFound)
+		logger.Printf("Ticket not found: %v", id)
+		http.Error(w, (&errors.NotFoundError{Resource: "Ticket", ID: id}).Error(), http.StatusNotFound)
 		return
 	}
 
@@ -58,13 +69,15 @@ func UpdateTicket(w http.ResponseWriter, r *http.Request) {
 
 	var updatedTicket models.Ticket
 	if err := json.NewDecoder(r.Body).Decode(&updatedTicket); err != nil {
+		logger.Printf("Error decoding updated ticket: %v", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
 	ticket, err := ticketQueue.Update(id, updatedTicket)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
+		logger.Printf("Error updating ticket: %v", err)
+		http.Error(w, (&errors.NotFoundError{Resource: "Ticket", ID: id}).Error(), http.StatusNotFound)
 		return
 	}
 
@@ -76,7 +89,8 @@ func DeleteTicket(w http.ResponseWriter, r *http.Request) {
 	id := vars["id"]
 
 	if err := ticketQueue.Delete(id); err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
+		logger.Printf("Error deleting ticket: %v", err)
+		http.Error(w, (&errors.NotFoundError{Resource: "Ticket", ID: id}).Error(), http.StatusNotFound)
 		return
 	}
 
@@ -87,6 +101,7 @@ func DeleteTicket(w http.ResponseWriter, r *http.Request) {
 func Register(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
+		logger.Printf("Error decoding user: %v", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -95,7 +110,8 @@ func Register(w http.ResponseWriter, r *http.Request) {
 	defer userMu.Unlock()
 
 	if _, exists := users[user.ID]; exists {
-		http.Error(w, "User already exists", http.StatusConflict)
+		logger.Printf("User already exists: %v", user.ID)
+		http.Error(w, (&errors.ConflictError{Resource: "User", ID: user.ID}).Error(), http.StatusConflict)
 		return
 	}
 
@@ -108,6 +124,7 @@ func Register(w http.ResponseWriter, r *http.Request) {
 func Login(w http.ResponseWriter, r *http.Request) {
 	var credentials models.Credentials
 	if err := json.NewDecoder(r.Body).Decode(&credentials); err != nil {
+		logger.Printf("Error decoding credentials: %v", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -133,6 +150,7 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 
 	var updatedUser models.User
 	if err := json.NewDecoder(r.Body).Decode(&updatedUser); err != nil {
+		logger.Printf("Error decoding updated user: %v", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -141,7 +159,8 @@ func UpdateUser(w http.ResponseWriter, r *http.Request) {
 	defer userMu.Unlock()
 
 	if _, exists := users[id]; !exists {
-		http.Error(w, "User not found", http.StatusNotFound)
+		logger.Printf("User not found: %v", id)
+		http.Error(w, (&errors.NotFoundError{Resource: "User", ID: id}).Error(), http.StatusNotFound)
 		return
 	}
 
@@ -159,7 +178,8 @@ func DeleteUser(w http.ResponseWriter, r *http.Request) {
 	defer userMu.Unlock()
 
 	if _, exists := users[id]; !exists {
-		http.Error(w, "User not found", http.StatusNotFound)
+		logger.Printf("User not found: %v", id)
+		http.Error(w, (&errors.NotFoundError{Resource: "User", ID: id}).Error(), http.StatusNotFound)
 		return
 	}
 
@@ -190,6 +210,7 @@ func ListUsers(w http.ResponseWriter, r *http.Request) {
 func CreateTrain(w http.ResponseWriter, r *http.Request) {
 	var train models.Train
 	if err := json.NewDecoder(r.Body).Decode(&train); err != nil {
+		logger.Printf("Error decoding train: %v", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -198,7 +219,8 @@ func CreateTrain(w http.ResponseWriter, r *http.Request) {
 	defer trainMu.Unlock()
 
 	if _, exists := trains[train.ID]; exists {
-		http.Error(w, "Train already exists", http.StatusConflict)
+		logger.Printf("Train already exists: %v", train.ID)
+		http.Error(w, (&errors.ConflictError{Resource: "Train", ID: train.ID}).Error(), http.StatusConflict)
 		return
 	}
 
@@ -230,6 +252,7 @@ func ListTrains(w http.ResponseWriter, r *http.Request) {
 func BookTicket(w http.ResponseWriter, r *http.Request) {
 	var ticket models.Ticket
 	if err := json.NewDecoder(r.Body).Decode(&ticket); err != nil {
+		logger.Printf("Error decoding ticket: %v", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
@@ -239,7 +262,8 @@ func BookTicket(w http.ResponseWriter, r *http.Request) {
 	trainMu.Unlock()
 
 	if !exists {
-		http.Error(w, "Train not found", http.StatusNotFound)
+		logger.Printf("Train not found: %v", ticket.TrainID)
+		http.Error(w, (&errors.NotFoundError{Resource: "Train", ID: ticket.TrainID}).Error(), http.StatusNotFound)
 		return
 	}
 
@@ -247,6 +271,7 @@ func BookTicket(w http.ResponseWriter, r *http.Request) {
 	defer ticketMu.Unlock()
 
 	if len(tickets) >= train.Capacity {
+		logger.Printf("Train is fully booked: %v", ticket.TrainID)
 		http.Error(w, "Train is fully booked", http.StatusConflict)
 		return
 	}
