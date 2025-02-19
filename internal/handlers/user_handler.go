@@ -27,6 +27,10 @@ var (
 	logger      *log.Logger
 )
 
+func SetLogger(l *log.Logger) {
+	logger = l
+}
+
 func Init(store internal.TicketStore) {
 	file, err := os.OpenFile("app.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 	if err != nil {
@@ -38,15 +42,18 @@ func Init(store internal.TicketStore) {
 }
 
 func CreateTicket(w http.ResponseWriter, r *http.Request) {
+	logger.Println("CreateTicket endpoint called")
 	var ticket models.Ticket
 	if err := json.NewDecoder(r.Body).Decode(&ticket); err != nil {
 		logger.Printf("Error decoding ticket: %v", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
+	logger.Printf("Decoded ticket: %+v", ticket)
 	ticket.Status = models.Pending
 	ticketQueue.Enqueue(ticket)
 	w.WriteHeader(http.StatusAccepted)
+	logger.Println("Ticket enqueued successfully")
 }
 
 func GetTicket(w http.ResponseWriter, r *http.Request) {
@@ -287,8 +294,9 @@ func BookTicket(w http.ResponseWriter, r *http.Request) {
 func ListTickets(w http.ResponseWriter, r *http.Request) {
 	ticketMu.Lock()
 	defer ticketMu.Unlock()
-
+	logger.Println("ListTickets endpoint called")
 	if len(tickets) > 0 {
+		logger.Println("Ticket Details are :")
 		fmt.Fprintln(w, "Ticket Details are :")
 		log.Println("Ticket Details are :")
 		w.WriteHeader(http.StatusAccepted)
@@ -297,6 +305,7 @@ func ListTickets(w http.ResponseWriter, r *http.Request) {
 			log.Printf(" Id: %v, TrainID: %v, UserID: %v, SeatNo: %v \n", ticket.ID, ticket.TrainID, ticket.UserID, ticket.SeatNo)
 		}
 	} else {
+		logger.Println("No tickets found")
 		w.WriteHeader(http.StatusOK)
 		json.NewEncoder(w).Encode([]models.Ticket{})
 	}
