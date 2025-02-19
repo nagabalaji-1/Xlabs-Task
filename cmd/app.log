@@ -1,0 +1,37 @@
+INFO: 2025/02/19 20:18:51 main.go:26: Starting server on :8080
+INFO: 2025/02/19 20:21:12 main.go:29: Starting server on :8080
+INFO: 2025/02/19 20:31:08 main.go:29: Starting server on :8080
+INFO: 2025/02/19 20:34:24 main.go:29: Starting server on :8080
+INFO: 2025/02/19 20:34:34 user_handler.go:297: ListTickets endpoint called
+INFO: 2025/02/19 20:34:34 user_handler.go:308: No tickets found
+INFO: 2025/02/19 20:34:36 user_handler.go:297: ListTickets endpoint called
+INFO: 2025/02/19 20:34:36 user_handler.go:308: No tickets found
+INFO: 2025/02/19 20:39:02 main.go:29: Starting server on :8080
+INFO: 2025/02/19 20:39:20 main.go:29: Starting server on :8080
+INFO: 2025/02/19 20:39:43 user_handler.go:297: ListTickets endpoint called
+INFO: 2025/02/19 20:39:43 user_handler.go:308: No tickets found
+INFO: 2025/02/19 20:41:18 user_handler.go:45: CreateTicket endpoint called
+INFO: 2025/02/19 20:41:18 user_handler.go:52: Decoded ticket: {ID: TrainID: UserID: SeatNo:0 Status:Pending}
+INFO: 2025/02/19 20:41:18 user_handler.go:56: Ticket enqueued successfully
+INFO: 2025/02/19 20:44:57 user_handler.go:45: CreateTicket endpoint called
+INFO: 2025/02/19 20:44:57 user_handler.go:52: Decoded ticket: {ID:123 TrainID: UserID: SeatNo:0 Status:%!v(PANIC=String method: runtime error: index out of range [8] with length 3)}
+INFO: 2025/02/19 20:44:57 user_handler.go:56: Ticket enqueued successfully
+INFO: 2025/02/19 20:45:35 user_handler.go:297: ListTickets endpoint called
+INFO: 2025/02/19 20:45:35 user_handler.go:308: No tickets found
+INFO: 2025/02/19 20:46:01 user_handler.go:45: CreateTicket endpoint called
+INFO: 2025/02/19 20:46:01 user_handler.go:52: Decoded ticket: {ID:123 TrainID: UserID: SeatNo:0 Status:%!v(PANIC=String method: runtime error: index out of range [8] with length 3)}
+INFO: 2025/02/19 20:46:01 user_handler.go:56: Ticket enqueued successfully
+INFO: 2025/02/19 20:46:17 user_handler.go:297: ListTickets endpoint called
+INFO: 2025/02/19 20:46:17 user_handler.go:308: No tickets found
+INFO: 2025/02/19 20:46:20 user_handler.go:297: ListTickets endpoint called
+INFO: 2025/02/19 20:46:20 user_handler.go:308: No tickets found
+INFO: 2025/02/19 20:46:32 user_handler.go:297: ListTickets endpoint called
+INFO: 2025/02/19 20:46:32 user_handler.go:308: No tickets found
+INFO: 2025/02/19 20:50:11 main.go:29: Starting server on :8080
+INFO: 2025/02/19 20:50:25 user_handler.go:45: CreateTicket endpoint called
+INFO: 2025/02/19 20:50:25 user_handler.go:52: Decoded ticket: {ID:123 TrainID: UserID: SeatNo:0 Status:%!v(PANIC=String method: runtime error: index out of range [8] with length 3)}
+INFO: 2025/02/19 20:50:25 user_handler.go:56: Ticket enqueued successfully
+INFO: 2025/02/19 22:02:40 user_handler.go:297: ListTickets endpoint called
+INFO: 2025/02/19 22:02:40 user_handler.go:308: No tickets found
+INFO: 2025/02/19 22:02:40 user_handler.go:297: ListTickets endpoint called
+INFO: 2025/02/19 22:02:40 user_handler.go:308: No tickets found
